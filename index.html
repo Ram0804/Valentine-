@@ -2,47 +2,42 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Valentine</title>
+<title>Happy Birthday 🎉</title>
 
 <style>
 body {
     margin: 0;
     height: 100vh;
-    background: pink;
+    background: linear-gradient(135deg, #fffa65, #ff9a9e);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial, sans-serif;
+    font-family: 'Comic Sans MS', cursive;
     overflow: hidden;
+    position: relative;
 }
 
 .container, .result {
     text-align: center;
+    z-index: 10;
 }
 
 h1 {
-    font-size: 40px;
-    color: #b30059;
+    font-size: 42px;
+    color: #ff3366;
 }
 
 button {
-    font-size: 22px;
-    padding: 12px 30px;
+    font-size: 24px;
+    padding: 15px 35px;
     margin: 20px;
     border: none;
     border-radius: 30px;
     cursor: pointer;
-}
-
-#yesBtn {
     background: #ff3366;
     color: white;
-}
-
-#noBtn {
-    background: white;
-    color: #ff3366;
-    position: absolute;
+    box-shadow: 0 0 15px rgba(255, 51, 102, 0.7);
+    transition: all 0.3s ease;
 }
 
 .result {
@@ -51,11 +46,34 @@ button {
 }
 
 .result h2 {
-    font-size: 45px;
+    font-size: 50px;
 }
 
 .result p {
     font-size: 32px;
+}
+
+/* Floating Balloons */
+.balloon {
+    position: fixed;
+    bottom: -30px;
+    font-size: 30px;
+    animation: floatUp 5s linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-110vh); opacity: 0; }
+}
+
+/* Fireworks canvas */
+#fireworks {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
 }
 </style>
 </head>
@@ -64,45 +82,116 @@ button {
 
 <!-- Question -->
 <div class="container" id="main">
-    <h1>Komal ❤️ Will you be my Valentine?</h1>
-    <button id="yesBtn">Yes</button>
-    <button id="noBtn">No</button>
+    <h1>Happy Birthday Komal! 🎉🥳</h1>
+    <button id="partyBtn">Party 🎈</button>
 </div>
 
 <!-- Result -->
 <div class="result" id="result">
-    <h2>Thank You </h2>
-    <p>Love You &#10084;&#65039; &#128150;</p>
+    <h2>Yay! 🎂🎁</h2>
+    <p>Love You ❤️</p>
 </div>
 
+<!-- Fireworks Canvas -->
+<canvas id="fireworks"></canvas>
+
+<!-- Birthday Sound -->
+<audio id="birthdaySound" autoplay>
+    <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
+</audio>
+
 <script>
-const noBtn = document.getElementById("noBtn");
-const yesBtn = document.getElementById("yesBtn");
+const partyBtn = document.getElementById("partyBtn");
 const main = document.getElementById("main");
 const result = document.getElementById("result");
+const sound = document.getElementById("birthdaySound");
 
-const texts = ["Really?", "Are you sure?", "Nice try 😜", "No escape ❤️"];
-let index = 0;
-
-// No button bhaagega 😆
-noBtn.addEventListener("mouseover", () => {
-    noBtn.innerText = texts[index % texts.length];
-    index++;
-
-    const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-    const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-
-    noBtn.style.left = x + "px";
-    noBtn.style.top = y + "px";
-});
-
-// Yes button
-yesBtn.addEventListener("click", () => {
+// Party button click
+partyBtn.addEventListener("click", () => {
     main.style.display = "none";
     result.style.display = "block";
     document.body.style.background = "#ffe6ec";
-});
-</script>
 
+    // Balloons rain 🎈
+    setInterval(createBalloon, 300);
+
+    // Fireworks start 🎆
+    startFireworks();
+});
+
+// Create floating balloons 🎈
+function createBalloon() {
+    const balloon = document.createElement("div");
+    balloon.classList.add("balloon");
+    balloon.innerText = "🎈";
+    balloon.style.left = Math.random() * 100 + "vw";
+    balloon.style.fontSize = (25 + Math.random() * 20) + "px";
+    document.body.appendChild(balloon);
+
+    setTimeout(() => {
+        balloon.remove();
+    }, 5000);
+}
+
+/* Fireworks JS */
+function startFireworks() {
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+
+    function random(min,max){return Math.random()*(max-min)+min;}
+
+    class Particle {
+        constructor(x,y,color){
+            this.x = x;
+            this.y = y;
+            this.color = color;
+            this.radius = random(2,4);
+            this.vx = random(-5,5);
+            this.vy = random(-5,5);
+            this.alpha = 1;
+        }
+        draw(){
+            ctx.globalAlpha = this.alpha;
+            ctx.beginPath();
+            ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+        update(){
+            this.x += this.vx;
+            this.y += this.vy;
+            this.alpha -= 0.02;
+        }
+    }
+
+    function explode(){
+        const x = random(100,canvas.width-100);
+        const y = random(100,canvas.height-200);
+        const colors = ["#ff3366","#ff99cc","#ffd6e8","#ff66aa","#ffff66","#66ffcc"];
+        for(let i=0;i<50;i++){
+            particles.push(new Particle(x,y,colors[Math.floor(random(0,colors.length))]));
+        }
+    }
+
+    function animate(){
+        ctx.fillStyle = "rgba(0,0,0,0.1)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        for(let i=particles.length-1;i>=0;i--){
+            particles[i].update();
+            particles[i].draw();
+            if(particles[i].alpha<=0) particles.splice(i,1);
+        }
+        requestAnimationFrame(animate);
+    }
+
+    setInterval(explode, 500);
+    animate();
+}
+</script>
 </body>
 </html>
